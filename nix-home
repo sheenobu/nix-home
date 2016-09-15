@@ -1,0 +1,58 @@
+#!/bin/sh
+
+if [ ! -e $HOME/default.nix ]; then
+	echo "No $HOME/default.nix file found, refusing to run"
+	exit -1
+fi
+
+function fail() {
+	echo "Failed to run"
+	rm $TMPFILE
+	exit 255
+}
+
+# enumerate over every file in current-home, store in TMPFILE
+TMPFILE=`mktemp`
+if [ -e /var/run/user/$UID/current-home ]; then
+	find /var/run/user/$UID/current-home/ -type f > $TMPFILE
+	find /var/run/user/$UID/current-home/ -type l > $TMPFILE
+fi
+
+# remove current home
+# TODO: track generations
+#rm -f /var/run/user/$UID/current-home
+
+# replace current-home folder
+nix-build -I NIXHOME -o /var/run/user/$UID/current-home $HOME || fail
+
+# link all files in current home to $HOME
+prefix="/var/run/user/$UID/current-home/"
+for x in `find /var/run/user/$UID/current-home/ -type l`; do
+	dest=${x#$prefix}
+	echo "linking $x to $dest"
+	ln -sf $x $HOME/$dest
+done
+
+for x in `find /var/run/user/$UID/current-home/ -type f`; do
+	dest=${x#$prefix}
+	echo "linking $x to $dest"
+	ln -sf $x $HOME/$dest
+done
+
+# iterate over all files in TMPFILE
+for x in `cat $TMPFILE`; do
+	if [ ! -e $x ]; then
+		echo "$x does not exist in new home"
+		dest=${x#$prefix}
+
+		if [ -h "$HOME/$dest" ]; then
+			echo "unlinking $HOME/$dest"
+			rm $HOME/$dest
+		else
+			echo "$HOME/$dest is not a symbolic link, skipping"
+		fi
+	fi
+done
+
+# cleanup
+rm $TMPFILE
