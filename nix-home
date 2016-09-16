@@ -30,13 +30,13 @@ prefix="/var/run/user/$UID/current-home/"
 for x in `find /var/run/user/$UID/current-home/ -type l`; do
 	dest=${x#$prefix}
 	echo "linking $x to $dest"
-	ln -sf $x $HOME/$dest
+	ln -sf $x -t `dirname $HOME/$dest`
 done
 
 for x in `find /var/run/user/$UID/current-home/ -type f`; do
 	dest=${x#$prefix}
 	echo "linking $x to $dest"
-	ln -sf $x $HOME/$dest
+	ln -sf $x -t `dirname $HOME/$dest`
 done
 
 # iterate over all files in TMPFILE
