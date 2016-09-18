@@ -15,7 +15,7 @@ function fail() {
 TMPFILE=`mktemp`
 if [ -e /var/run/user/$UID/current-home ]; then
 	find /var/run/user/$UID/current-home/ -type f > $TMPFILE
-	find /var/run/user/$UID/current-home/ -type l > $TMPFILE
+	find /var/run/user/$UID/current-home/ -type l >> $TMPFILE
 fi
 
 # remove current home
