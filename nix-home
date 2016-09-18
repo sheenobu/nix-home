@@ -1,5 +1,20 @@
 #!/bin/sh
 
+for i in "$@"
+do
+case $i in
+    --version)
+	echo "0.2.0";
+	exit
+    ;;
+    *)
+		echo "nix-home: usage"
+		echo "	--version - print version and exit"
+		exit
+    ;;
+esac
+done
+
 if [ ! -e $HOME/default.nix ]; then
 	echo "No $HOME/default.nix file found, refusing to run"
 	exit -1
