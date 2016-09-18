@@ -1,9 +1,27 @@
 #!/bin/sh
 
+for i in "$@"
+do
+case $i in
+    --version)
+	echo "0.2.0";
+	exit
+    ;;
+    *)
+		echo "nix-home: usage"
+		echo "	--version - print version and exit"
+		exit
+    ;;
+esac
+done
+
 if [ ! -e $HOME/default.nix ]; then
 	echo "No $HOME/default.nix file found, refusing to run"
 	exit -1
 fi
+
+mkdir -p $HOME/.nix-home
+ROOT=$HOME/.nix-home/current-home/
 
 function fail() {
 	echo "Failed to run"
@@ -13,9 +31,13 @@ function fail() {
 
 # enumerate over every file in current-home, store in TMPFILE
 TMPFILE=`mktemp`
+prefix=$ROOT
 if [ -e /var/run/user/$UID/current-home ]; then
 	find /var/run/user/$UID/current-home/ -type f > $TMPFILE
-	find /var/run/user/$UID/current-home/ -type l > $TMPFILE
+	find /var/run/user/$UID/current-home/ -type l >> $TMPFILE
+elif [ -e $ROOT ]; then
+	find $ROOT -type f > $TMPFILE
+	find $ROOT -type l >> $TMPFILE
 fi
 
 # remove current home
@@ -23,11 +45,11 @@ fi
 #rm -f /var/run/user/$UID/current-home
 
 # replace current-home folder
-nix-build -I NIXHOME -o /var/run/user/$UID/current-home $HOME || fail
+echo "nix-build -I NIXHOME -o $ROOT $HOME || fail"
+nix-build -I NIXHOME -o $ROOT $HOME || fail
 
 # link all files in current home to $HOME
-prefix="/var/run/user/$UID/current-home/"
-for x in `find /var/run/user/$UID/current-home/ -type l`; do
+for x in `find $ROOT -type l`; do
 	dest=${x#$prefix}
 
 	if [ ! -h "$HOME/$dest" ]; then
@@ -45,7 +67,7 @@ for x in `find /var/run/user/$UID/current-home/ -type l`; do
 	fi
 done
 
-for x in `find /var/run/user/$UID/current-home/ -type f`; do
+for x in `find $ROOT -type f`; do
 	dest=${x#$prefix}
 	echo "linking $x to $dest"
 	ln -sf $x -t `dirname $HOME/$dest`

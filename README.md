@@ -4,9 +4,10 @@ Utilities for working with user configurations in Nix.
 
 ## Supported
 
-`nix-home`, when invoked, automically builds `~/default.nix`, which must define a derivation. 
+`nix-home`, when invoked, automically builds `~/default.nix`, which must define a derivation.
+
 The derivation is an overlay that gets linked into your home directory. Additionally, the current derivation will be
-linked at /run/user/$uid/current-home.
+linked at $HOME/.nix-home/current-home.
 
 There is a helper function in nixhome called `mkHome`, for making the derivation:
 
