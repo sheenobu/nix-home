@@ -59,10 +59,12 @@ for x in `find $ROOT -type l`; do
 			echo "$dest is a regular directory, refusing to overwrite with link"
 		else
 			echo "linking $x to $dest"
+			mkdir -p `dirname $HOME/$dest`
 			ln -sf $x -t `dirname $HOME/$dest`
 		fi
 	else
 		echo "linking $x to $dest"
+		mkdir -p `dirname $HOME/$dest`
 		ln -sf $x -t `dirname $HOME/$dest`
 	fi
 done
