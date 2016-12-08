@@ -6,10 +6,20 @@ let
        inherit files;
     });
 
+  writeFiles = ./../writeFiles.py;
+
   in stdenv.mkDerivation {
       name = "${user}-nix-home";
       inherit src;
-      builder = ./builder.sh;
+      builder = pkgs.writeText "builder.sh" ''
+#!/bin/sh
+
+. $stdenv/setup
+
+mkdir -p $out
+${pkgs.python}/bin/python ${writeFiles} "$src" "$out"
+'';
+
   };
 in
 {
