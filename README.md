@@ -2,6 +2,16 @@
 
 Utilities for working with user configurations in Nix.
 
+## Installation
+
+The package for installing nix-home is on the wiki [here](https://github.com/sheenobu/nix-home/wiki/package.nix). Include it in your configuration.nix file via:
+
+```
+environment.systemPackages = [ 
+  ((pkgs.callPackage path/to/nixhome/package.nix) { })
+]
+```
+
 ## Supported
 
 `nix-home`, when invoked, automically builds `~/default.nix`, which must define a derivation.
