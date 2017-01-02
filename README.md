@@ -14,7 +14,7 @@ environment.systemPackages = [
 
 ## Supported
 
-`nix-home`, when invoked, automically builds `~/default.nix`, which must define a derivation.
+`nix-home`, when invoked, builds `~/default.nix`, which must define a derivation.
 
 The derivation is an overlay that gets linked into your home directory. Additionally, the current derivation will be
 linked at $HOME/.nix-home/current-home.
