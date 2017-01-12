@@ -75,7 +75,6 @@ if [ "$performLink" == "true" ]; then
 	fi
 fi
 
-# replace current-home folder
 if [ "x_$PRINTCMDS" == "x_true" ]; then
 	echo "nix-env -I NIXHOME -p $ROOT -f $HOME $op $@ || fail"
 fi

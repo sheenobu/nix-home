@@ -2,7 +2,19 @@
 
 Utilities for working with user configurations in Nix.
 
+## commands
+
+### nix-home
+
 The command delegates to nix-env, so it supports any parameter that nix-env does.
+
+Just running `nix-home` builds and symlinks the files defined in $HOME/default.nix
+
+### nix-build-home
+
+nix-build-home builds $HOME/default.nix via nix-build and prints out the derivation. Useful
+for testing your config without linking to your home directory. Does NOT generate a ./result
+symlink.
 
 ## Installation
 

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# nix-build-home builds the $HOME directory using
+# the NIXHOME library. A shortcut for testing
+# your nix-home config without linking it.
+
+nix-build --no-out-link -I NIXHOME $HOME $@ || exit $?
