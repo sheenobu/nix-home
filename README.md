@@ -2,12 +2,14 @@
 
 Utilities for working with user configurations in Nix.
 
+The command delegates to nix-env, so it supports any parameter that nix-env does.
+
 ## Installation
 
 The package for installing nix-home is on the wiki [here](https://github.com/sheenobu/nix-home/wiki/package.nix). Include it in your configuration.nix file via:
 
 ```
-environment.systemPackages = [ 
+environment.systemPackages = [
   ((pkgs.callPackage path/to/nixhome/package.nix) { })
 ]
 ```
@@ -16,8 +18,8 @@ environment.systemPackages = [
 
 `nix-home`, when invoked, builds `~/default.nix`, which must define a derivation.
 
-The derivation is an overlay that gets linked into your home directory. Additionally, the current derivation will be
-linked at $HOME/.nix-home/current-home.
+nix-home calls nix-env to build a profile from the derivation. The derivation
+is an overlay that gets linked into your home directory.
 
 There is a helper function in nixhome called `mkHome`, for making the derivation:
 
@@ -33,11 +35,4 @@ There is a helper function in nixhome called `mkHome`, for making the derivation
 		 '';
 	  };
 	}
-
-## Planned
-
- * nix-home rebuild / switch
- * nix-home --list-generations
- * nix-home --rollback
- * nix-home --gc
 
