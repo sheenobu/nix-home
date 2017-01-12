@@ -8,7 +8,9 @@ Utilities for working with user configurations in Nix.
 
 The command delegates to nix-env, so it supports any parameter that nix-env does.
 
-Just running `nix-home` builds and symlinks the files defined in $HOME/default.nix
+Running `nix-home` by itself builds and symlinks the files defined in $HOME/default.nix
+
+NOTE: `nix-home --dry-run` will still attempt to link. This is a bug! #15
 
 ### nix-build-home
 
@@ -48,3 +50,11 @@ There is a helper function in nixhome called `mkHome`, for making the derivation
 	  };
 	}
 
+## Generations
+
+Generations are supported via standard `nix-env` parameters:
+
+	* nix-home --list-generations
+	* nix-home --rollback
+	* nix-home --switch-generation 1
+	* nix-home --delete-generations 1 2 3
