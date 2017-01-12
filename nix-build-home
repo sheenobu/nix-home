@@ -4,4 +4,14 @@
 # the NIXHOME library. A shortcut for testing
 # your nix-home config without linking it.
 
+for i in "$@"
+do
+case $i in
+	--version)
+		echo "0.3.1";
+		exit
+	;;
+esac
+done
+
 nix-build --no-out-link -I NIXHOME $HOME $@ || exit $?

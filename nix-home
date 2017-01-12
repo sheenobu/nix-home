@@ -11,7 +11,7 @@ for i in "$@"
 do
 case $i in
 	--version)
-		echo "0.3.0";
+		echo "0.3.1";
 		exit
 	;;
 	# we only really need to list options which disable linking. Everything else
