@@ -11,7 +11,7 @@ for i in "$@"
 do
 case $i in
 	--version)
-		echo "0.3.0";
+		echo "0.3.1";
 		exit
 	;;
 	# we only really need to list options which disable linking. Everything else
@@ -38,6 +38,7 @@ fi
 # path issues.
 
 # The trailing / is important for find to work properly
+OLDOLDROOT=/var/run/user/$UID/current-home/
 OLDROOT=$HOME/.nix-home/
 ROOT=/nix/var/nix/profiles/per-user/$USER/nix-home/
 
@@ -56,9 +57,9 @@ if [ "$performLink" == "true" ]; then
 	touch $TMPFILE
 
 	# 0.1.x
-	if [ -e /var/run/user/$UID/current-home ]; then
-		find /var/run/user/$UID/current-home/ -type f >> $TMPFILE
-		find /var/run/user/$UID/current-home/ -type l >> $TMPFILE
+	if [ -e $OLDOLDROOT ]; then
+		find $OLDOLDROOT -type f >> $TMPFILE
+		find $OLDOLDROOT -type l >> $TMPFILE
 	fi
 
 	# 0.2.x
@@ -74,7 +75,6 @@ if [ "$performLink" == "true" ]; then
 	fi
 fi
 
-# replace current-home folder
 if [ "x_$PRINTCMDS" == "x_true" ]; then
 	echo "nix-env -I NIXHOME -p $ROOT -f $HOME $op $@ || fail"
 fi
@@ -87,31 +87,82 @@ if [ "$performLink" != "true" ]; then
 	exit
 fi
 
-# link all files in current home to $HOME
+# link all symlinks in the overlay to $HOME
 for x in `find $ROOT -type l`; do
 	dest=${x#$prefix}
 
 	if [ ! -h "$HOME/$dest" ]; then
 		if [ -f "$HOME/$dest" ]; then
-			echo "$dest is a regular file  refusing to overwrite with link"
+			echo "$dest is a regular file refusing to overwrite with link"
 		elif [ -d "$HOME/$dest" ]; then
 			echo "$dest is a regular directory, refusing to overwrite with link"
 		else
+			# dest does not exist
 			echo "linking $x to $dest"
 			mkdir -p `dirname $HOME/$dest`
 			ln -sf $x -t `dirname $HOME/$dest`
 		fi
 	else
-		echo "linking $x to $dest"
-		mkdir -p `dirname $HOME/$dest`
-		ln -sf $x -t `dirname $HOME/$dest`
+		# dest file or dir is a symbolic link
+		originalFile=$(readlink $HOME/$dest) # ensure the existing link goes to a nix-home file, otherwise ignore it.
+		case $originalFile in
+			$OLDOLDROOT*)
+				echo "linking $x to $dest"
+				mkdir -p `dirname $HOME/$dest`
+				ln -sf $x -t `dirname $HOME/$dest`
+			$OLDROOT*)
+				echo "linking $x to $dest"
+				mkdir -p `dirname $HOME/$dest`
+				ln -sf $x -t `dirname $HOME/$dest`
+			$ROOT*)
+				echo "linking $x to $dest"
+				mkdir -p `dirname $HOME/$dest`
+				ln -sf $x -t `dirname $HOME/$dest`
+			;;
+			*)
+				echo "$dest is a symlink to a non nix-home file, refusing to overwrite with link"
+			;;
+		esac
 	fi
 done
 
+# link all the regular files in the overlay to $HOME
 for x in `find $ROOT -type f`; do
 	dest=${x#$prefix}
-	echo "linking $x to $dest"
-	ln -sf $x -t `dirname $HOME/$dest`
+
+	if [ ! -h "$HOME/$dest" ]; then
+		if [ -f "$HOME/$dest" ]; then
+			echo "$dest is a regular file refusing to overwrite with link"
+		elif [ -d "$HOME/$dest" ]; then
+			echo "$dest is a regular directory, refusing to overwrite with link"
+		else
+			# dest does not exist
+			echo "linking $x to $dest"
+			mkdir -p `dirname $HOME/$dest`
+			ln -sf $x -t `dirname $HOME/$dest`
+		fi
+	else
+		# dest file or dir is a symbolic link
+		originalFile=$(readlink $HOME/$dest)
+		case $originalFile in
+			$OLDOLDROOT*)
+				echo "linking $x to $dest"
+				mkdir -p `dirname $HOME/$dest`
+				ln -sf $x -t `dirname $HOME/$dest`
+			$OLDROOT*)
+				echo "linking $x to $dest"
+				mkdir -p `dirname $HOME/$dest`
+				ln -sf $x -t `dirname $HOME/$dest`
+			$ROOT*)
+				echo "linking $x to $dest"
+				mkdir -p `dirname $HOME/$dest`
+				ln -sf $x -t `dirname $HOME/$dest`
+			;;
+			*)
+				echo "$dest is a symlink to a non nix-home file, refusing to overwrite with link"
+			;;
+		esac
+	fi
 done
 
 # iterate over all files in TMPFILE
