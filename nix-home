@@ -110,10 +110,12 @@ for x in `find $ROOT -type l`; do
 				echo "linking $x to $dest"
 				mkdir -p `dirname $HOME/$dest`
 				ln -sf $x -t `dirname $HOME/$dest`
+			;;
 			$OLDROOT*)
 				echo "linking $x to $dest"
 				mkdir -p `dirname $HOME/$dest`
 				ln -sf $x -t `dirname $HOME/$dest`
+			;;
 			$ROOT*)
 				echo "linking $x to $dest"
 				mkdir -p `dirname $HOME/$dest`
@@ -149,10 +151,12 @@ for x in `find $ROOT -type f`; do
 				echo "linking $x to $dest"
 				mkdir -p `dirname $HOME/$dest`
 				ln -sf $x -t `dirname $HOME/$dest`
+			;;
 			$OLDROOT*)
 				echo "linking $x to $dest"
 				mkdir -p `dirname $HOME/$dest`
 				ln -sf $x -t `dirname $HOME/$dest`
+			;;
 			$ROOT*)
 				echo "linking $x to $dest"
 				mkdir -p `dirname $HOME/$dest`
